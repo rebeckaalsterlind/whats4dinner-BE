@@ -7,11 +7,14 @@ router.use(cors())
 router.post("/registerUser", async function (req, res) {
   let newUser = req.body;
   const usernameTaken = await req.app.locals.db.collection("users").find({"userName": newUser.userName}).toArray()
+  console.log('usernametaken', usernameTaken);
   if(usernameTaken.length > 0) {
     res.json({status: false, body: 'Username taken'})
   } else {
+    console.log('before try');
     try {
-      _hash(newUser.password, 5)
+      console.log('before hash');
+      bcrypt.hash(newUser.password, 5)
     .then(hash => {
       // add hash to object?
       newUser.password = hash;
@@ -24,10 +27,12 @@ router.post("/registerUser", async function (req, res) {
       })
     })
     .catch(err => {
+      console.log('in catch', err);
       res.json({ status: false, body: err });
     })
   }
   catch (err) {
+    console.log('didnt even go throur try');
     res.json({ status: false, body: err });
   }
   }
@@ -36,13 +41,15 @@ router.post("/registerUser", async function (req, res) {
 
 //log in user
 router.post("/login", async function (req, res) {
-
+console.log('in login', req.body);
   const user = await req.app.locals.db.collection("users").find({"userName": req.body.userName}).toArray()
+  console.log('user', user);
   if (user.length <= 0) {
     return res.json({ status: false, body: 'No user found. Please register to login' });
   }
   try {
-    compare(req.body.password, user[0].password, (err, result) => {
+    console.log('in try');
+    bcrypt.compare(req.body.password, user[0].password, (err, result) => {
       if (!result) {
         return res.json({ status: false, body: 'Username or password incorrect' });
       }

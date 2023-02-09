@@ -7,19 +7,23 @@ const ObjectId = require('mongodb').ObjectId;
 
 router.post("/addCustomList", async function (req, res) {
   try {
+    console.log('rew.body', req.body);
     const response = await req.app.locals.db.collection("users").updateOne(
     { "_id": new ObjectId(`${req.body.id}`) },
     {$push: { "customLists": req.body.customList }});
       if(response.acknowledged) {
       const user = await req.app.locals.db.collection("users").find({"_id": new ObjectId(`${req.body.id}`)}).toArray()
       user[0].password ='hidden';
+      console.log('sending back user[0]', user[0]);
       res.json(user[0])
     } 
     if(!response.acknowledged) {
+      console.log('thta didnt work');
       res.send(response.acknowledged)
     }
   } 
   catch (err) {
+    console.log('stuck in catch');
     res.send(err)
   }
 });

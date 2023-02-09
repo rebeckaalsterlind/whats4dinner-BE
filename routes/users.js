@@ -11,7 +11,6 @@ router.post("/registerUser", async function (req, res) {
   if(usernameTaken.length > 0) {
     res.json({status: false, body: 'Username taken'})
   } else {
-    console.log('before try');
     try {
       bcrypt.hash(newUser.password, 5)
     .then(hash => {

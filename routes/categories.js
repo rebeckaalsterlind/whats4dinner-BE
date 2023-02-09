@@ -1,14 +1,15 @@
 var express = require('express');
 var router = express.Router();
 const cors = require("cors");
-const ObjectId = require('mongodb').ObjectId;
 router.use(cors())
+var path = require('path');
+const ObjectId = require('mongodb').ObjectId;
 
-router.post("/addMeal", async function (req, res) {
+router.post("/addCategory", async function (req, res) {
   try {
     const response = await req.app.locals.db.collection("users").updateOne(
     { "_id": new ObjectId(`${req.body.id}`) },
-    { $push: { "meals": req.body.meal } });
+    { $push: { "categories": req.body.category } });
     if(response.acknowledged) {
       const user = await req.app.locals.db.collection("users").find({"_id": new ObjectId(`${req.body.id}`)}).toArray()
       user[0].password ='hidden';
@@ -23,11 +24,11 @@ router.post("/addMeal", async function (req, res) {
   }
 });
 
-router.post("/deleteMeal", async function (req, res) {
+router.post("/deleteCategory", async function (req, res) {
   try {
     const response = await req.app.locals.db.collection("users").updateOne(
     { "_id": new ObjectId(`${req.body.id}`) },
-    { $pull: { "meals": { id: req.body.meal.id } } });
+    { $pull: { "categories": { categoryId: req.body.categoryId } } });
     if(response.acknowledged) {
       const user = await req.app.locals.db.collection("users").find({"_id": new ObjectId(`${req.body.id}`)}).toArray()
       user[0].password ='hidden';

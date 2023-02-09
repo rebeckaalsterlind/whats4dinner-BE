@@ -7,7 +7,9 @@ const cors = require("cors");
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mealsRouter = require('./routes/meals');
-var imagesRouter = require('./routes/images');
+var categoriesRouter = require('./routes/categories');
+var customListsRouter = require('./routes/customLists');
+
 
 var app = express();
 app.use(cors())
@@ -32,6 +34,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/meals', mealsRouter);
-app.use('/images', imagesRouter);
+app.use('/categories', categoriesRouter);
+app.use('/customLists', customListsRouter);
+
 
 module.exports = app;

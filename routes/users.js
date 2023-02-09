@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const bcrypt = require("bcrypt");
+const ObjectId = require('mongodb').ObjectId;
 const cors = require("cors");
 router.use(cors())
 
@@ -11,17 +12,15 @@ router.post("/registerUser", async function (req, res) {
     res.json({status: false, body: 'Username taken'})
   } else {
     try {
-      _hash(newUser.password, 5)
+      bcrypt.hash(newUser.password, 5)
     .then(hash => {
-      // add hash to object?
       newUser.password = hash;
-      // store hash in the database
       req.app.locals.db.collection("users").insertOne(newUser)
-      .then(async registeredUser => {
-        let getRegisteredUser = await req.app.locals.db.collection("users").find({"userName": newUser.userName}).toArray()
-        getRegisteredUser[0].password = 'hidden';
-        res.json({ status: true, body: getRegisteredUser[0] });
-      })
+    .then(async registeredUser => {
+      let getRegisteredUser = await req.app.locals.db.collection("users").find({"userName": newUser.userName}).toArray()
+      getRegisteredUser[0].password = 'hidden';
+      res.json({ status: true, body: getRegisteredUser[0] });
+    })
     })
     .catch(err => {
       res.json({ status: false, body: err });
@@ -30,19 +29,17 @@ router.post("/registerUser", async function (req, res) {
   catch (err) {
     res.json({ status: false, body: err });
   }
-  }
-
+}
 })
 
 //log in user
 router.post("/login", async function (req, res) {
-
   const user = await req.app.locals.db.collection("users").find({"userName": req.body.userName}).toArray()
   if (user.length <= 0) {
     return res.json({ status: false, body: 'No user found. Please register to login' });
   }
   try {
-    compare(req.body.password, user[0].password, (err, result) => {
+    bcrypt.compare(req.body.password, user[0].password, (err, result) => {
       if (!result) {
         return res.json({ status: false, body: 'Username or password incorrect' });
       }
